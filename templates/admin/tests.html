@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Manage Tests{% endblock %}
+
+{% block content %}
+<div class="page-banner d-flex justify-content-between align-items-center flex-wrap gap-3">
+  <div class="d-flex align-items-center gap-3">
+    <div class="banner-icon"><i class="bi bi-clipboard-check-fill"></i></div>
+    <div>
+      <span class="badge bg-warning text-dark mb-2"><i class="bi bi-grid-fill me-1"></i>Admin</span>
+      <h3 class="fw-bold mb-1">Tests</h3>
+      <p class="mb-0 small">Create, publish, and manage tests.</p>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-light">
+      <i class="bi bi-arrow-left me-2"></i>Back
+    </a>
+    <a href="{{ url_for('admin.new_test') }}" class="btn btn-light">
+      <i class="bi bi-plus-circle-fill me-2"></i>New Test
+    </a>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    {% if tests %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width:50px">#</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th class="text-center">Questions</th>
+              <th class="text-center">Time</th>
+              <th class="text-center">Shuffle</th>
+              <th>Status</th>
+              <th class="text-center">Attempts</th>
+              <th class="text-end" style="width:240px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in tests %}
+            <tr>
+              <td class="text-muted small">{{ t['id'] }}</td>
+              <td>
+                <span class="fw-semibold d-block">{{ t['title'] }}</span>
+                {% if t['description'] %}
+                <small class="text-muted">{{ t['description'][:80] }}{% if t['description']|length > 80 %}…{% endif %}</small>
+                {% endif %}
+              </td>
+              <td>
+                {% if t['category'] %}
+                  <span class="badge cat-badge-{{ t['category'] }}">{{ t['category']|capitalize }}</span>
+                {% else %}
+                  <span class="text-muted small">Mixed</span>
+                {% endif %}
+              </td>
+              <td class="text-center">{{ t['num_questions'] }}</td>
+              <td class="text-center">{{ t['time_limit'] }} min</td>
+              <td class="text-center">
+                {% if t['shuffle'] %}<i class="bi bi-check-circle-fill text-success"></i>
+                {% else %}<i class="bi bi-dash-circle text-muted"></i>{% endif %}
+              </td>
+              <td>
+                {% if t['status'] == 'published' %}
+                  <span class="badge bg-success">Published</span>
+                {% elif t['status'] == 'draft' %}
+                  <span class="badge bg-secondary">Draft</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Unpublished</span>
+                {% endif %}
+              </td>
+              <td class="text-center">{{ t['attempts'] }}</td>
+              <td class="text-end">
+                {% if t['status'] != 'published' %}
+                <form method="POST" action="{{ url_for('admin.publish_test', test_id=t['id']) }}" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-success" title="Publish">
+                    <i class="bi bi-send"></i>
+                  </button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('admin.unpublish_test', test_id=t['id']) }}" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-warning" title="Unpublish">
+                    <i class="bi bi-eye-slash"></i>
+                  </button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('admin.edit_test', test_id=t['id']) }}"
+                   class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                <form method="POST" action="{{ url_for('admin.delete_test', test_id=t['id']) }}"
+                      class="d-inline"
+                      onsubmit="return confirm('Delete this test? Existing results will be kept but detached.');">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox display-4 d-block mb-3"></i>
+        <p>No tests yet. <a href="{{ url_for('admin.new_test') }}">Create the first one.</a></p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

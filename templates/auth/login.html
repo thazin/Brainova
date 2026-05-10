@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center g-4">
+  <div class="col-md-5 d-none d-md-block">
+    <div class="page-banner h-100 d-flex flex-column justify-content-center" style="min-height: 380px;">
+      <div class="banner-icon mb-3"><i class="bi bi-shield-lock-fill"></i></div>
+      <h2 class="fw-bold mb-2">Welcome back!</h2>
+      <p class="text-white-75 mb-4">Sign in to continue tracking your cognitive growth and climbing the leaderboard.</p>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-warning text-dark"><i class="bi bi-trophy-fill me-1"></i>Leaderboards</span>
+        <span class="badge bg-warning text-dark"><i class="bi bi-graph-up me-1"></i>History</span>
+        <span class="badge bg-warning text-dark"><i class="bi bi-bell-fill me-1"></i>Notifications</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card shadow border-0">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center mb-3"
+               style="width:64px;height:64px;border-radius:18px;background:var(--bn-grad-primary);box-shadow:var(--bn-shadow-glow);">
+            <i class="bi bi-box-arrow-in-right text-white fs-3"></i>
+          </div>
+          <h3 class="fw-bold mb-1">Sign In</h3>
+          <p class="text-muted small mb-0">Welcome back to your Brainova account</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username or Email</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+              <input type="text" name="identifier" class="form-control" placeholder="Enter username or email" required autofocus>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+              <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Enter password" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordInput', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 btn-lg">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+          </button>
+        </form>
+
+        <hr class="my-4">
+        <p class="text-center mb-0 small">
+          Don't have an account? <a href="{{ url_for('auth.register') }}" class="fw-semibold">Register here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

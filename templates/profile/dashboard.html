@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-banner d-flex justify-content-between align-items-center flex-wrap gap-3">
+  <div class="d-flex align-items-center gap-3">
+    <div class="banner-icon"><i class="bi bi-emoji-smile-fill"></i></div>
+    <div>
+      <span class="badge bg-warning text-dark mb-2"><i class="bi bi-stars me-1"></i>Dashboard</span>
+      <h3 class="fw-bold mb-1">Welcome back, {{ user['username'] }}!</h3>
+      <p class="mb-0 small">Here's a quick look at your activity.</p>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('test.list_published') }}" class="btn btn-light">
+      <i class="bi bi-collection-fill me-2"></i>Browse Tests
+    </a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-sm stat-card">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-clipboard-data-fill display-5 text-primary mb-2 d-block"></i>
+        <div class="fw-bold fs-2">{{ stats.tests_taken }}</div>
+        <small class="text-muted">Tests Taken</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-sm stat-card">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-trophy-fill display-5 text-success mb-2 d-block"></i>
+        <div class="fw-bold fs-2">{{ stats.best_iq or '—' }}</div>
+        <small class="text-muted">Best IQ Score</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-sm stat-card">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-collection-fill display-5 text-info mb-2 d-block"></i>
+        <div class="fw-bold fs-2">{{ stats.available_tests }}</div>
+        <small class="text-muted">Tests Available</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-sm stat-card">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-bell-fill display-5 text-warning mb-2 d-block"></i>
+        <div class="fw-bold fs-2">{{ stats.unread_notifications }}</div>
+        <small class="text-muted">Unread Notifications</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Latest result banner -->
+{% if last_result %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <p class="text-muted small mb-1">Your latest result</p>
+      <h5 class="fw-bold mb-1">
+        IQ <span class="text-primary">{{ last_result['iq_score'] }}</span>
+        <span class="text-muted fw-normal small">
+          · {{ last_result['score'] }}/{{ last_result['total_questions'] }} correct
+        </span>
+      </h5>
+      <small class="text-muted">{{ last_result['taken_at'][:16] }}</small>
+    </div>
+    <a href="{{ url_for('test.result', result_id=last_result['id']) }}" class="btn btn-outline-primary">
+      View Details <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <!-- Available tests -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0"><i class="bi bi-collection-fill text-primary me-2"></i>Available Tests</h5>
+        {% if stats.available_tests > available_tests|length %}
+        <a href="{{ url_for('test.list_published') }}" class="small">View all →</a>
+        {% endif %}
+      </div>
+      <div class="card-body px-4">
+        {% if available_tests %}
+        <div class="list-group list-group-flush">
+          {% for t in available_tests %}
+          <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+            <div>
+              <span class="fw-semibold d-block">{{ t['title'] }}</span>
+              <small class="text-muted">
+                {{ t['time_limit'] }} min · {{ t['num_questions'] }} questions
+                {% if t['category'] %}· {{ t['category']|capitalize }}{% endif %}
+              </small>
+            </div>
+            <a href="{{ url_for('test.begin', test_id=t['id']) }}" class="btn btn-sm btn-primary">
+              Start <i class="bi bi-play-circle ms-1"></i>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-4 mb-0">No tests are available yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent results -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Recent Results</h5>
+        <a href="{{ url_for('profile.view') }}" class="small">Full history →</a>
+      </div>
+      <div class="card-body px-4">
+        {% if recent_results %}
+        <ul class="list-unstyled mb-0">
+          {% for r in recent_results %}
+          <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <span class="fw-semibold d-block">
+                {{ r['test_title'] or 'Quick Brainova Test' }}
+              </span>
+              <small class="text-muted">{{ r['taken_at'][:16] }}</small>
+            </div>
+            <a href="{{ url_for('test.result', result_id=r['id']) }}"
+               class="badge bg-primary text-decoration-none fs-6 px-3 py-2">
+              {{ r['iq_score'] }}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center py-4 mb-0">No results yet — take a test to see your IQ.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

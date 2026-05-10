@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Profile Card -->
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center p-4">
+        <div class="profile-avatar mx-auto mb-4">
+          {{ user['username'][0].upper() }}
+        </div>
+        <h4 class="fw-bold mb-0">{{ user['username'] }}</h4>
+        <p class="text-muted small mb-3"><i class="bi bi-envelope-fill me-1"></i>{{ user['email'] }}</p>
+        {% if user['is_admin'] %}
+          <span class="badge bg-danger mb-3"><i class="bi bi-shield-fill-check me-1"></i>Administrator</span>
+        {% endif %}
+        <div class="d-grid">
+          <a href="{{ url_for('profile.edit') }}" class="btn btn-primary">
+            <i class="bi bi-pencil-square me-2"></i>Edit Profile
+          </a>
+        </div>
+        <hr>
+        <div class="row text-center">
+          <div class="col-6">
+            <div class="fw-bold fs-4 text-primary">{{ results|length }}</div>
+            <small class="text-muted">Tests Taken</small>
+          </div>
+          <div class="col-6">
+            {% if results %}
+              <div class="fw-bold fs-4 text-success">{{ results[0]['iq_score'] }}</div>
+              <small class="text-muted">Latest IQ</small>
+            {% else %}
+              <div class="fw-bold fs-4 text-muted">—</div>
+              <small class="text-muted">Latest IQ</small>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test History -->
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+        <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Test History</h5>
+      </div>
+      <div class="card-body px-4">
+        {% if results %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Score</th>
+                  <th>IQ Score</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in results %}
+                <tr>
+                  <td class="text-muted small">{{ r['taken_at'][:16] }}</td>
+                  <td>
+                    <span class="fw-semibold">{{ r['score'] }}/{{ r['total_questions'] }}</span>
+                    <div class="progress mt-1" style="height:4px;width:80px;">
+                      <div class="progress-bar bg-primary" style="width:{{ (r['score']/r['total_questions']*100)|int }}%"></div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-primary fs-6 px-3">{{ r['iq_score'] }}</span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <a href="{{ url_for('test.result', result_id=r['id']) }}" class="btn btn-outline-secondary" title="View">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <a href="{{ url_for('test.download_pdf', result_id=r['id']) }}" class="btn btn-outline-danger" title="Download PDF">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                      </a>
+                      <a href="{{ url_for('test.download_excel', result_id=r['id']) }}" class="btn btn-outline-success" title="Download Excel">
+                        <i class="bi bi-file-earmark-excel"></i>
+                      </a>
+                      <button type="submit"
+                              form="delete-result-{{ r['id'] }}"
+                              class="btn btn-outline-dark"
+                              title="Delete"
+                              onclick="return confirm('Delete this test result permanently? This cannot be undone.');">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                    <form id="delete-result-{{ r['id'] }}"
+                          method="POST"
+                          action="{{ url_for('test.delete_result', result_id=r['id']) }}"
+                          class="d-none"></form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-clipboard-x display-4 d-block mb-3"></i>
+            <p>No tests taken yet.</p>
+            <a href="{{ url_for('test.start') }}" class="btn btn-primary">Take Your First Test</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

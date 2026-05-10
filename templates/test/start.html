@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Start Test{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <!-- Previous result banner -->
+    {% if last_result %}
+    <div class="alert alert-info d-flex align-items-center mb-4">
+      <i class="bi bi-info-circle-fill me-3 fs-5"></i>
+      <div>
+        Your last test score was <strong>{{ last_result['score'] }}/{{ last_result['total_questions'] }}</strong>
+        with an IQ of <strong>{{ last_result['iq_score'] }}</strong>.
+        <a href="{{ url_for('test.result', result_id=last_result['id']) }}" class="ms-2">View details →</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center mb-3"
+               style="width:72px;height:72px;border-radius:20px;background:var(--bn-grad-warm);box-shadow:var(--bn-shadow-glow);">
+            <i class="bi bi-rocket-takeoff-fill text-white fs-2"></i>
+          </div>
+          <h3 class="fw-bold mb-2">Ready to Test Your IQ?</h3>
+          <p class="text-muted mb-0">
+            Answer all <strong>{{ total }}</strong> questions across four cognitive domains.
+            Take your time — there is no timer.
+          </p>
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="row g-3 mb-4">
+          {% for cat, count in counts.items() %}
+          <div class="col-6 col-md-3">
+            <div class="text-center p-3 rounded-3 category-mini cat-bg-{{ cat }}">
+              <div class="fw-bold fs-5">{{ count }}</div>
+              <small class="text-muted">{{ cat|capitalize }}</small>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="bg-light rounded-3 p-3 mb-4 small text-muted">
+          <i class="bi bi-lightbulb me-2 text-warning"></i>
+          <strong>Instructions:</strong> Select the best answer for each question.
+          You cannot go back once you submit. Your results will be saved to your profile.
+        </div>
+
+        <div class="d-grid">
+          <a href="{{ url_for('test.take') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-play-circle-fill me-2"></i>Start Test Now
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

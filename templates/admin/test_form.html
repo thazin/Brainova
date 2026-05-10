@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Test' if mode == 'edit' else 'New Test' }}{% endblock %}
+
+{% block content %}
+{% set action_url = url_for('admin.edit_test', test_id=test['id']) if mode == 'edit' else url_for('admin.new_test') %}
+
+<div class="page-banner d-flex justify-content-between align-items-center flex-wrap gap-3">
+  <div class="d-flex align-items-center gap-3">
+    <div class="banner-icon"><i class="bi bi-{{ 'pencil-square' if mode == 'edit' else 'plus-square-fill' }}"></i></div>
+    <div>
+      <span class="badge bg-warning text-dark mb-2"><i class="bi bi-clipboard-check-fill me-1"></i>{{ 'Editing' if mode == 'edit' else 'New' }}</span>
+      <h3 class="fw-bold mb-1">{{ 'Edit Test' if mode == 'edit' else 'New Test' }}</h3>
+      <p class="mb-0 small">Configure rules, scope, and visibility.</p>
+    </div>
+  </div>
+  <a href="{{ url_for('admin.tests') }}" class="btn btn-light">
+    <i class="bi bi-arrow-left me-2"></i>Back
+  </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-4">
+    <form method="POST" action="{{ action_url }}">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Title</label>
+        <input type="text" name="title" class="form-control" required
+               value="{{ test['title'] or '' }}">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Description <span class="text-muted small">(optional)</span></label>
+        <textarea name="description" class="form-control" rows="2">{{ test['description'] or '' }}</textarea>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Time limit (min)</label>
+          <input type="number" name="time_limit" class="form-control" min="1" required
+                 value="{{ test['time_limit'] }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold"># Questions</label>
+          <input type="number" name="num_questions" class="form-control" min="1" required
+                 value="{{ test['num_questions'] }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Category</label>
+          <select name="category" class="form-select">
+            <option value="" {% if not test['category'] %}selected{% endif %}>Mixed (all)</option>
+            {% for c in categories %}
+            <option value="{{ c }}" {% if test['category'] == c %}selected{% endif %}>{{ c|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Status</label>
+          <select name="status" class="form-select">
+            {% for s in statuses %}
+            <option value="{{ s }}" {% if test['status'] == s %}selected{% endif %}>{{ s|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-check form-switch mt-4">
+        <input class="form-check-input" type="checkbox" role="switch" id="shuffle"
+               name="shuffle" value="1" {% if test['shuffle'] %}checked{% endif %}>
+        <label class="form-check-label fw-semibold" for="shuffle">
+          Shuffle questions and answer options at runtime
+        </label>
+      </div>
+
+      <div class="alert alert-info small mt-4 mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Setting status to <strong>Published</strong> makes the test visible to
+        all normal users and sends them a notification.
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <a href="{{ url_for('admin.tests') }}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-save me-2"></i>{{ 'Save Changes' if mode == 'edit' else 'Create Test' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

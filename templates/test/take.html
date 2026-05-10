@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Take the Test{% endblock %}
+{% block taking_test %}true{% endblock %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('test.take') }}" id="testForm">
+<div class="row g-3">
+
+  <!-- =================================================
+       LEFT COLUMN — Question + controls
+       ================================================= -->
+  <div class="col-lg-8">
+
+    <!-- Timer + Progress Header -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+          <!-- Timer -->
+          <div class="timer-box" id="timer-box">
+            <i class="bi bi-clock"></i>
+            <span class="timer-value" id="timer-display">30:00</span>
+            <span class="timer-label">left</span>
+          </div>
+
+          <!-- Question counter -->
+          <div class="text-center">
+            <span class="fw-semibold fs-6" id="question-counter">
+              Question 1 of {{ q_list|length }}
+            </span>
+          </div>
+
+          <!-- Progress -->
+          <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted" id="progress-text">0 / {{ q_list|length }} answered</span>
+            <div class="progress" style="width: 110px; height: 8px;">
+              <div class="progress-bar bg-primary" id="progress-bar" style="width: 0%" role="progressbar"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Question Cards (one visible at a time) -->
+    {% for item in q_list %}
+    {% set q = item.question %}
+    {% set opts = item.options %}
+    {% set q_index = loop.index %}
+    <div class="card border-0 shadow-sm mb-3 question-slide"
+         id="qcard-{{ loop.index }}"
+         style="{{ '' if loop.first else 'display:none;' }}"
+         data-q-index="{{ loop.index }}">
+      <div class="card-body p-4">
+        <div class="d-flex gap-3 mb-3">
+          <span class="question-number">{{ loop.index }}</span>
+          <div>
+            <span class="badge cat-badge-{{ q['category'] }} mb-2">{{ q['category']|capitalize }}</span>
+            <p class="fw-semibold mb-0 fs-5">{{ q['question_text'] }}</p>
+          </div>
+        </div>
+
+        <div class="options-grid ps-5">
+          {% for opt in opts %}
+          <label class="option-label" for="opt-{{ q['id'] }}-{{ opt['id'] }}">
+            <input class="option-radio" type="radio"
+                   name="q_{{ q['id'] }}"
+                   id="opt-{{ q['id'] }}-{{ opt['id'] }}"
+                   value="{{ opt['id'] }}"
+                   onchange="onAnswer({{ q['id'] }}, {{ q_index }}, {{ q_list|length }})">
+            <span class="option-letter">{{ 'ABCDE'[loop.index0] }}</span>
+            <span class="option-text">{{ opt['option_text'] }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Previous / Jump / Next -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body p-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+          <button type="button" class="btn btn-outline-secondary" id="prevBtn"
+                  onclick="prevQuestion()" disabled>
+            <i class="bi bi-chevron-left me-1"></i>Previous
+          </button>
+
+          <!-- Jump to question -->
+          <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted d-none d-sm-inline">Jump to:</span>
+            <input type="number" class="form-control form-control-sm text-center"
+                   id="jumpInput" min="1" max="{{ q_list|length }}"
+                   style="width: 64px;" placeholder="#">
+            <button type="button" class="btn btn-sm btn-outline-primary"
+                    onclick="jumpToQuestion()">Go</button>
+          </div>
+
+          <button type="button" class="btn btn-outline-primary" id="nextBtn"
+                  onclick="nextQuestion()">
+            Next<i class="bi bi-chevron-right ms-1"></i>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4 text-center">
+        <p class="text-muted mb-3" id="submit-hint">Please answer all questions before submitting.</p>
+        <button type="submit" class="btn btn-success btn-lg px-5" id="submitBtn"
+                onclick="return confirmSubmit({{ q_list|length }})">
+          <i class="bi bi-check-circle me-2"></i>Submit Test
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =================================================
+       RIGHT COLUMN — Question Navigation (sticky on lg+)
+       ================================================= -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm question-nav-card">
+      <div class="card-body p-3">
+        <p class="small text-muted fw-semibold mb-2">QUESTION NAVIGATION</p>
+        <div class="d-flex flex-wrap gap-2" id="question-nav">
+          {% for item in q_list %}
+          <button type="button"
+                  class="nav-q-btn btn btn-sm btn-outline-secondary"
+                  id="nav-btn-{{ loop.index }}"
+                  onclick="goToQuestion({{ loop.index }})">
+            {{ loop.index }}
+          </button>
+          {% endfor %}
+        </div>
+        <div class="d-flex gap-3 mt-3 small text-muted flex-wrap">
+          <span><span class="nav-legend nav-legend-current"></span> Current</span>
+          <span><span class="nav-legend nav-legend-answered"></span> Answered</span>
+          <span><span class="nav-legend nav-legend-unanswered"></span> Unanswered</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  initTest({{ q_list|length }}, 1800);
+</script>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Your IQ Result{% endblock %}
+
+{% block content %}
+<!-- IQ Score Hero -->
+<div class="text-center mb-5 py-4">
+  <span class="section-eyebrow"><i class="bi bi-stars"></i> Your Result</span>
+  <div class="iq-circle mx-auto mb-3 mt-2">
+    <div class="iq-number">{{ res['iq_score'] }}</div>
+    <div class="iq-label-text">IQ Score</div>
+  </div>
+  <h2 class="fw-bold">
+    <span class="badge bg-{{ iq_label[1] }} fs-5 px-4 py-2"><i class="bi bi-award-fill me-2"></i>{{ iq_label[0] }}</span>
+  </h2>
+  <p class="text-muted mt-2">
+    You answered <strong>{{ res['score'] }} out of {{ res['total_questions'] }}</strong> questions correctly.
+  </p>
+
+  <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
+    <a href="{{ url_for('profile.dashboard') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+    </a>
+    <a href="{{ url_for('test.start') }}" class="btn btn-primary">
+      <i class="bi bi-arrow-repeat me-2"></i>Retake Test
+    </a>
+    <a href="{{ url_for('profile.view') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-person-circle me-2"></i>My Profile
+    </a>
+    <a href="{{ url_for('test.download_pdf', result_id=res['id']) }}" class="btn btn-danger">
+      <i class="bi bi-file-earmark-pdf-fill me-2"></i>Download PDF
+    </a>
+    <a href="{{ url_for('test.download_excel', result_id=res['id']) }}" class="btn btn-success">
+      <i class="bi bi-file-earmark-excel-fill me-2"></i>Download Excel
+    </a>
+    {% if res['test_id'] %}
+    <a href="{{ url_for('test.leaderboard', test_id=res['test_id']) }}" class="btn btn-warning">
+      <i class="bi bi-trophy-fill me-2"></i>View Leaderboard
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Score Breakdown -->
+<div class="row g-3 mb-4">
+  {% set correct_count = details|selectattr('is_correct', 'eq', 1)|list|length %}
+  {% set wrong_count = details|length - correct_count %}
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm stat-card text-center py-3">
+      <div class="card-body">
+        <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-2"></i>
+        <div class="text-success fw-bold fs-2">{{ correct_count }}</div>
+        <small class="text-muted">Correct</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm stat-card text-center py-3">
+      <div class="card-body">
+        <i class="bi bi-x-circle-fill text-danger fs-3 d-block mb-2"></i>
+        <div class="text-danger fw-bold fs-2">{{ wrong_count }}</div>
+        <small class="text-muted">Wrong / Skipped</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm stat-card text-center py-3">
+      <div class="card-body">
+        <i class="bi bi-bullseye text-primary fs-3 d-block mb-2"></i>
+        <div class="text-primary fw-bold fs-2">{{ ((res['score'] / res['total_questions']) * 100)|int }}%</div>
+        <small class="text-muted">Accuracy</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IQ Scale -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body px-4 py-3">
+    <h6 class="fw-bold mb-3"><i class="bi bi-rulers text-primary me-2"></i>IQ Scale Reference</h6>
+    <div class="iq-scale d-flex rounded overflow-hidden" style="height:28px;">
+      <div class="flex-fill bg-danger d-flex align-items-center justify-content-center" style="width:10%">
+        <small class="text-white fw-bold" style="font-size:10px;">70–79</small>
+      </div>
+      <div class="flex-fill bg-warning d-flex align-items-center justify-content-center" style="width:14%">
+        <small class="text-dark fw-bold" style="font-size:10px;">80–89</small>
+      </div>
+      <div class="flex-fill bg-info d-flex align-items-center justify-content-center" style="width:16%">
+        <small class="text-white fw-bold" style="font-size:10px;">90–109</small>
+      </div>
+      <div class="flex-fill bg-primary d-flex align-items-center justify-content-center" style="width:18%">
+        <small class="text-white fw-bold" style="font-size:10px;">110–119</small>
+      </div>
+      <div class="flex-fill bg-success d-flex align-items-center justify-content-center" style="width:22%">
+        <small class="text-white fw-bold" style="font-size:10px;">120–129</small>
+      </div>
+      <div class="flex-fill d-flex align-items-center justify-content-center" style="width:20%;background:#1a6600">
+        <small class="text-white fw-bold" style="font-size:10px;">130–145</small>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between mt-1" style="font-size:10px;color:#888;">
+      <span>Below Average</span><span>Low Avg</span><span>Average</span>
+      <span>High Avg</span><span>Superior</span><span>Very Superior</span>
+    </div>
+  </div>
+</div>
+
+<!-- Answer Review -->
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+    <h5 class="fw-bold mb-0"><i class="bi bi-list-check text-primary me-2"></i>Answer Review</h5>
+  </div>
+  <div class="card-body px-4">
+    {% for d in details %}
+    <div class="review-item mb-3 p-3 rounded-3 {{ 'review-correct' if d['is_correct'] else 'review-wrong' }}">
+      <div class="d-flex gap-2 mb-2">
+        <span class="review-icon">
+          {% if d['is_correct'] %}
+            <i class="bi bi-check-circle-fill text-success"></i>
+          {% else %}
+            <i class="bi bi-x-circle-fill text-danger"></i>
+          {% endif %}
+        </span>
+        <div class="flex-grow-1">
+          <span class="badge cat-badge-{{ d['category'] }} me-2">{{ d['category']|capitalize }}</span>
+          <span class="fw-semibold">{{ d['question_text'] }}</span>
+        </div>
+      </div>
+      <div class="ps-4 small">
+        {% if d['selected_text'] %}
+          <div class="mb-1">
+            <span class="text-muted">Your answer:</span>
+            <span class="{{ 'text-success fw-semibold' if d['is_correct'] else 'text-danger fw-semibold' }}">
+              {{ d['selected_text'] }}
+            </span>
+          </div>
+        {% else %}
+          <div class="mb-1 text-warning">
+            <i class="bi bi-dash-circle me-1"></i>Not answered
+          </div>
+        {% endif %}
+        {% if not d['is_correct'] %}
+          <div>
+            <span class="text-muted">Correct answer:</span>
+            <span class="text-success fw-semibold">{{ d['correct_text'] }}</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — {{ test['title'] }}{% endblock %}
+
+{% block content %}
+<div class="page-banner d-flex justify-content-between align-items-center flex-wrap gap-3">
+  <div class="d-flex align-items-center gap-3">
+    <div class="banner-icon"><i class="bi bi-trophy-fill"></i></div>
+    <div>
+      <span class="badge bg-warning text-dark mb-2"><i class="bi bi-calendar3 me-1"></i>{{ period_label }}</span>
+      <h3 class="fw-bold mb-1">Leaderboard</h3>
+      <p class="mb-0 small">{{ test['title'] }}</p>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('test.list_published') }}" class="btn btn-outline-light">
+      <i class="bi bi-arrow-left me-2"></i>Back
+    </a>
+    <a href="{{ url_for('test.begin', test_id=test['id']) }}" class="btn btn-light">
+      <i class="bi bi-play-circle-fill me-2"></i>Take Test
+    </a>
+  </div>
+</div>
+
+{% if entries %}
+{% macro podium_player(p) %}
+  <div class="podium-avatar">{{ p.username[0]|upper }}</div>
+  <div class="podium-name">
+    {{ p.username }}{% if p.is_me %} <span class="badge bg-primary">You</span>{% endif %}
+  </div>
+  <div class="podium-iq">IQ {{ p.iq_score }}</div>
+  <div class="podium-meta">
+    {{ p.score }}/{{ p.total_questions }} · {{ p.accuracy }}%
+    {% if p.tied %}
+      <div><span class="badge bg-warning text-dark mt-1">
+        <i class="bi bi-people-fill me-1"></i>+{{ p.tied_with }} tied
+      </span></div>
+    {% endif %}
+  </div>
+{% endmacro %}
+{% macro podium_empty() %}
+  <div class="podium-avatar" style="background:#e0e0e0;color:#aaa;">?</div>
+  <div class="podium-meta">—</div>
+{% endmacro %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-0">
+    <div class="podium">
+      {# 2nd place — left #}
+      <div class="podium-slot silver">
+        {% if podium.second %}{{ podium_player(podium.second) }}{% else %}{{ podium_empty() }}{% endif %}
+        <div class="podium-block">2</div>
+      </div>
+
+      {# 1st place — center #}
+      <div class="podium-slot gold">
+        <div class="podium-crown"><i class="bi bi-crown-fill text-warning"></i></div>
+        {% if podium.first %}{{ podium_player(podium.first) }}{% else %}{{ podium_empty() }}{% endif %}
+        <div class="podium-block">1</div>
+      </div>
+
+      {# 3rd place — right #}
+      <div class="podium-slot bronze">
+        {% if podium.third %}{{ podium_player(podium.third) }}{% else %}{{ podium_empty() }}{% endif %}
+        <div class="podium-block">3</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm text-center py-3">
+      <div class="text-primary fw-bold fs-2">{{ total_players }}</div>
+      <small class="text-muted">Players Ranked</small>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm text-center py-3">
+      <div class="text-success fw-bold fs-2">
+        {% if entries %}{{ entries[0]['iq_score'] }}{% else %}—{% endif %}
+      </div>
+      <small class="text-muted">Top IQ</small>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm text-center py-3">
+      <div class="text-warning fw-bold fs-2">
+        {% if my_rank %}
+          {%- set n = my_rank -%}
+          {%- if 10 <= n % 100 <= 20 -%}
+            {{ n }}th
+          {%- else -%}
+            {%- set last = n % 10 -%}
+            {{ n }}{{ {1:'st',2:'nd',3:'rd'}.get(last,'th') }}
+          {%- endif -%}
+        {% else %}—{% endif %}
+      </div>
+      <small class="text-muted">Your Rank</small>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    {% if entries %}
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4" style="width:80px;">Rank</th>
+            <th>Player</th>
+            <th class="text-center">IQ</th>
+            <th class="text-center">Score</th>
+            <th class="text-center">Accuracy</th>
+            <th class="text-end pe-4">Attempts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in entries %}
+          <tr {% if e.is_me %}class="table-warning"{% endif %}>
+            <td class="ps-4 fw-bold">
+              {% set tie_title = 'Tied at ' ~ e.rank_label if e.tied else '' %}
+              {% if e.rank == 1 %}
+                <span class="text-warning" title="{{ tie_title }}">
+                  <i class="bi bi-trophy-fill me-1"></i>{{ e.rank_label }}
+                </span>
+              {% elif e.rank == 2 %}
+                <span style="color:#9aa0a6;" title="{{ tie_title }}">
+                  <i class="bi bi-award-fill me-1"></i>{{ e.rank_label }}
+                </span>
+              {% elif e.rank == 3 %}
+                <span style="color:#cd7f32;" title="{{ tie_title }}">
+                  <i class="bi bi-award-fill me-1"></i>{{ e.rank_label }}
+                </span>
+              {% else %}
+                <span class="text-muted" title="{{ tie_title }}">
+                  {{ e.rank_label }}
+                </span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="fw-semibold">{{ e.username }}</span>
+              {% if e.is_me %}
+                <span class="badge bg-primary ms-1">You</span>
+              {% endif %}
+            </td>
+            <td class="text-center fw-bold">{{ e.iq_score }}</td>
+            <td class="text-center">{{ e.score }} / {{ e.total_questions }}</td>
+            <td class="text-center">{{ e.accuracy }}%</td>
+            <td class="text-end pe-4">
+              {{ e.attempts }}
+              <small class="text-muted">{{ 'time' if e.attempts == 1 else 'times' }}</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-people display-4 d-block mb-3"></i>
+      <p class="mb-1">No attempts in {{ period_label }} yet.</p>
+      <small>Be the first to set this month's record!</small>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<p class="text-muted small mt-3 mb-0">
+  <i class="bi bi-info-circle me-1"></i>
+  Monthly leaderboard — only attempts taken during {{ period_label }} are counted.
+  Rankings show each player's best attempt this month. Players with the same IQ
+  share the same rank (e.g. two users tied for 2nd both display <strong>2nd</strong>),
+  and the next rank skips accordingly. The board resets at the start of every month.
+</p>
+{% endblock %}

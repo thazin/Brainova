@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="hero-section text-center mb-5">
+  <i class="bi bi-stars hero-decor" style="top:18%;left:8%;animation-delay:0s;"></i>
+  <i class="bi bi-puzzle hero-decor" style="top:32%;right:10%;animation-delay:1.5s;font-size:1.6rem;"></i>
+  <i class="bi bi-graph-up-arrow hero-decor" style="bottom:18%;left:12%;animation-delay:3s;"></i>
+  <i class="bi bi-trophy-fill hero-decor" style="bottom:25%;right:15%;animation-delay:2s;font-size:1.7rem;"></i>
+
+  <div class="py-3">
+    <span class="badge bg-warning text-dark fw-semibold mb-3 px-3 py-2">
+      <i class="bi bi-stars me-1"></i> 4 Cognitive Domains · Instant Score
+    </span>
+    <h1 class="display-4 fw-bold text-white mb-3">
+      <i class="bi bi-brain"></i>Measure Your Intelligence
+    </h1>
+    <p class="lead text-white-75 mb-4">
+      Take our scientifically-inspired Brainova test across four cognitive domains:<br>
+      <strong>Logical</strong>, <strong>Verbal</strong>, <strong>Numerical</strong>, and <strong>Spatial</strong> reasoning.
+    </p>
+    {% if session.user_id %}
+      <a href="{{ url_for('test.start') }}" class="btn btn-light btn-lg px-5 fw-semibold">
+        <i class="bi bi-play-circle-fill me-2"></i>Start Test
+      </a>
+    {% else %}
+      <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5 me-2 fw-semibold">
+        <i class="bi bi-person-plus-fill me-2"></i>Get Started Free
+      </a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-5">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="text-center mb-3">
+  <span class="section-eyebrow"><i class="bi bi-grid-3x3-gap-fill"></i> Categories</span>
+  <h2 class="fw-bold mb-1">Train Every Side of Your Mind</h2>
+  <p class="text-muted">Four distinct cognitive domains, one comprehensive score.</p>
+</div>
+<div class="row g-4 mb-5">
+  <div class="col-md-3 col-sm-6">
+    <div class="card h-100 text-center border-0 shadow-sm category-card logical">
+      <div class="card-body py-4">
+        <div class="category-icon mb-3"><i class="bi bi-diagram-3-fill"></i></div>
+        <h5 class="fw-bold">Logical</h5>
+        <p class="text-muted small mb-0">Deductive reasoning, pattern recognition and abstract thinking.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card h-100 text-center border-0 shadow-sm category-card verbal">
+      <div class="card-body py-4">
+        <div class="category-icon mb-3"><i class="bi bi-chat-quote-fill"></i></div>
+        <h5 class="fw-bold">Verbal</h5>
+        <p class="text-muted small mb-0">Vocabulary, analogies and language comprehension skills.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card h-100 text-center border-0 shadow-sm category-card numerical">
+      <div class="card-body py-4">
+        <div class="category-icon mb-3"><i class="bi bi-calculator-fill"></i></div>
+        <h5 class="fw-bold">Numerical</h5>
+        <p class="text-muted small mb-0">Arithmetic, number series and quantitative problem solving.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card h-100 text-center border-0 shadow-sm category-card spatial">
+      <div class="card-body py-4">
+        <div class="category-icon mb-3"><i class="bi bi-bounding-box"></i></div>
+        <h5 class="fw-bold">Spatial</h5>
+        <p class="text-muted small mb-0">Shapes, geometry and three-dimensional visualization.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- How It Works -->
+<div class="card border-0 shadow-sm mb-5">
+  <div class="card-body p-4 p-md-5">
+    <div class="text-center mb-4">
+      <span class="section-eyebrow"><i class="bi bi-lightning-charge-fill"></i> Quick Start</span>
+      <h3 class="fw-bold mb-1">How It Works</h3>
+      <p class="text-muted mb-0">Three steps to discover your cognitive profile.</p>
+    </div>
+    <div class="row text-center g-4">
+      <div class="col-md-4">
+        <div class="step-number mb-3">1</div>
+        <h6 class="fw-bold mt-3">Create an Account</h6>
+        <p class="text-muted small">Register in seconds — no email verification required.</p>
+      </div>
+      <div class="col-md-4">
+        <div class="step-number mb-3">2</div>
+        <h6 class="fw-bold mt-3">Take the Test</h6>
+        <p class="text-muted small">Answer questions across all four cognitive categories.</p>
+      </div>
+      <div class="col-md-4">
+        <div class="step-number mb-3">3</div>
+        <h6 class="fw-bold mt-3">Get Your IQ Score</h6>
+        <p class="text-muted small">Receive an instant score with a detailed breakdown.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feature highlights -->
+<div class="row g-3 mb-5">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body p-4 d-flex gap-3 align-items-start">
+        <div class="icon-tile icon-tile-amber"><i class="bi bi-trophy-fill"></i></div>
+        <div>
+          <h6 class="fw-bold mb-1">Climb the Leaderboard</h6>
+          <p class="text-muted small mb-0">Compete with other minds in monthly rankings.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body p-4 d-flex gap-3 align-items-start">
+        <div class="icon-tile"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+        <div>
+          <h6 class="fw-bold mb-1">Export Your Results</h6>
+          <p class="text-muted small mb-0">Download polished PDF or Excel reports.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body p-4 d-flex gap-3 align-items-start">
+        <div class="icon-tile icon-tile-violet"><i class="bi bi-magic"></i></div>
+        <div>
+          <h6 class="fw-bold mb-1">AI-Generated Tests</h6>
+          <p class="text-muted small mb-0">Fresh questions created by Gemini for endless variety.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

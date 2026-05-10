@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Edit Question{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-4 gap-3">
+          <a href="{{ url_for('admin.questions') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+          </a>
+          <div class="icon-tile"><i class="bi bi-pencil-square"></i></div>
+          <div>
+            <span class="section-eyebrow"><i class="bi bi-patch-question-fill"></i> Question #{{ question['id'] }}</span>
+            <h4 class="fw-bold mb-0">Edit Question</h4>
+          </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin.edit_question', q_id=question['id']) }}" novalidate>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Question Text</label>
+            <textarea name="question_text" class="form-control" rows="3" required>{{ request.form.get('question_text', question['question_text']) }}</textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Category</label>
+            <select name="category" class="form-select" required>
+              {% for cat in categories %}
+              <option value="{{ cat }}"
+                {{ 'selected' if (request.form.get('category', question['category'])) == cat }}>
+                {{ cat|capitalize }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <h6 class="fw-semibold mb-3">Answer Options <span class="text-muted fw-normal">(select the correct one)</span></h6>
+
+          {% for i in range(5) %}
+          {% set ans = answers[i] if i < answers|length else None %}
+          <div class="input-group mb-2">
+            <div class="input-group-text">
+              <input class="form-check-input" type="radio" name="correct_answer"
+                     value="{{ i }}" required
+                     {{ 'checked' if (request.form.get('correct_answer') == i|string) or
+                        (not request.form.get('correct_answer') and ans and ans['is_correct']) }}>
+            </div>
+            <input type="text" name="option_{{ i + 1 }}" class="form-control"
+                   placeholder="Option {{ i + 1 }}"
+                   value="{{ request.form.get('option_' ~ (i+1), ans['option_text'] if ans else '') }}" required>
+          </div>
+          {% endfor %}
+
+          <p class="text-muted small mb-4">
+            <i class="bi bi-info-circle me-1"></i>Select the radio button next to the correct answer.
+          </p>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">
+              <i class="bi bi-check-lg me-2"></i>Save Changes
+            </button>
+            <a href="{{ url_for('admin.questions') }}" class="btn btn-outline-secondary px-4">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
