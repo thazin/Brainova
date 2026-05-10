@@ -7,7 +7,7 @@ from routes.test import test_bp
 from routes.notifications import notifications_bp, unread_count
 
 app = Flask('Gemini 2.5 Flash')
-app.secret_key = 'AIzaSyARl5PghQWCIAoYOtVHlfZ6UY2bJNayRl4'
+app.secret_key = 'AIzaSyDwlW65IwtxBRGUSHywEFMN2FNzF7yZ68Q'
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp, url_prefix='/admin')
