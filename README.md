@@ -104,6 +104,81 @@ The app starts on `http://127.0.0.1:5000`. The first run creates `brainova.db`, 
 | `test_answers` | Per-question detail for each result |
 | `notifications` | One row per recipient — fanned out at publish time |
 
+## API & Routes
+
+All endpoints are server-rendered Flask routes (HTML responses, form-based POSTs). Blueprints are registered in `app.py`.
+
+### Root
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/` | Landing page; redirects logged-in users to their dashboard |
+
+### Auth (`routes/auth.py`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET / POST | `/register` | Create a new user account |
+| GET / POST | `/login` | Authenticate and start a session |
+| GET | `/logout` | Clear session |
+
+### Profile (`routes/profile.py`, prefix `/profile`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/profile/dashboard` | User dashboard: stats, latest result, available tests |
+| GET | `/profile/` | View own profile |
+| GET / POST | `/profile/edit` | Edit profile |
+
+### Test (`routes/test.py`, prefix `/test`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/test/` | Start the legacy Quick Brainova Test |
+| GET / POST | `/test/take` | Take and submit the quick test |
+| GET | `/test/list` | List admin-published tests |
+| GET / POST | `/test/<test_id>/begin` | Take and submit a published test |
+| GET | `/test/<test_id>/leaderboard` | Per-test leaderboard |
+| GET | `/test/result/<result_id>` | Detailed result review |
+| POST | `/test/result/<result_id>/delete` | Delete own result |
+| GET | `/test/result/<result_id>/download/pdf` | Download result as PDF |
+| GET | `/test/result/<result_id>/download/excel` | Download result as Excel |
+
+### Admin (`routes/admin.py`, prefix `/admin`, all `@admin_required`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/admin/` | Admin dashboard + platform stats |
+| GET | `/admin/questions` | List all questions |
+| GET / POST | `/admin/questions/add` | Add a question manually |
+| POST | `/admin/questions/generate` | AI-generate 10 questions (Gemini) for review |
+| POST | `/admin/questions/generate/submit` | Persist reviewed AI-generated questions |
+| GET / POST | `/admin/questions/edit/<q_id>` | Edit a question |
+| POST | `/admin/questions/delete/<q_id>` | Delete a question |
+| GET | `/admin/tests` | List all tests |
+| GET / POST | `/admin/tests/new` | Create a new test |
+| GET / POST | `/admin/tests/<test_id>/edit` | Edit a test |
+| POST | `/admin/tests/<test_id>/publish` | Publish + fan out notifications |
+| POST | `/admin/tests/<test_id>/unpublish` | Unpublish a test |
+| POST | `/admin/tests/<test_id>/delete` | Delete a test |
+| GET | `/admin/users` | List users |
+| GET / POST | `/admin/users/<user_id>/edit` | Edit a user |
+| POST | `/admin/users/<user_id>/delete` | Delete a user (admin accounts protected) |
+
+### Notifications (`routes/notifications.py`, prefix `/notifications`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/notifications/` | Inbox view |
+| POST | `/notifications/<note_id>/read` | Mark a notification as read |
+| POST | `/notifications/<note_id>/delete` | Delete a notification |
+
+### Cross-cutting
+
+- **Auth guards** — `@login_required` on user routes, `@admin_required` on every `/admin/*` route.
+- **Template context** — `unread_notifications` is injected globally so the navbar badge is available on every page.
+- **Result authorization** — `_load_result_for_user` ensures users can only read or export their own results.
+
 ## Example admin workflow
 
 1. Log in as `admin`.
